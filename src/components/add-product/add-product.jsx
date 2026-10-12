@@ -1,5 +1,7 @@
 import { useState } from "react";
 import uploadArea from "../../assets/upload_area.svg";
+import { API_URL } from "../../config";
+import { getToken, handleUnauthorized } from "../../helpers/auth";
 import "./add-product.css";
 
 const AddProduct = () => {
@@ -28,30 +30,34 @@ const AddProduct = () => {
       const formData = new FormData();
       formData.append("product", image);
 
-      const uploadResponse = await fetch("http://localhost:4000/upload", {
+      const uploadResponse = await fetch(`${API_URL}/upload`, {
         method: "POST",
         headers: {
           Accept: "application/json",
+          "auth-token": getToken() || "",
         },
         body: formData,
       });
+      if (handleUnauthorized(uploadResponse)) return;
       const responseData = await uploadResponse.json();
 
       if (!responseData?.success) {
-        alert("Image upload failed");
+        alert(responseData?.error || "Image upload failed");
         return;
       }
 
       const product = { ...productDetails, image: responseData.image_url };
 
-      const addResponse = await fetch("http://localhost:4000/addProduct", {
+      const addResponse = await fetch(`${API_URL}/addProduct`, {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
+          "auth-token": getToken() || "",
         },
         body: JSON.stringify(product),
       });
+      if (handleUnauthorized(addResponse)) return;
       const data = await addResponse.json();
 
       if (data?.success) {
@@ -59,7 +65,7 @@ const AddProduct = () => {
         setProductDetails({ name: "", image: "", category: "women", new_price: "", old_price: "" });
         setImage(false);
       } else {
-        alert("Failed");
+        alert(data?.error || "Failed");
       }
     } catch (error) {
       console.error("Add product failed:", error);

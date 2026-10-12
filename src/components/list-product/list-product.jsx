@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import crossIcon from "../../assets/cross_icon.png";
+import { API_URL } from "../../config";
+import { getToken, handleUnauthorized } from "../../helpers/auth";
 import "./list-product.css";
 
 const ListProduct = () => {
@@ -7,7 +9,7 @@ const ListProduct = () => {
 
   const fetchInfo = async () => {
     try {
-      const response = await fetch("http://localhost:4000/allProducts");
+      const response = await fetch(`${API_URL}/allProducts`);
       if (!response.ok) {
         throw new Error(`Request failed with status ${response.status}`);
       }
@@ -25,17 +27,25 @@ const ListProduct = () => {
 
   const removeProduct = async (id, name) => {
     try {
-      const response = await fetch("http://localhost:4000/removeProduct", {
+      const response = await fetch(`${API_URL}/removeProduct`, {
         method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "auth-token": getToken() || "",
+        },
         body: JSON.stringify({ id: id, name: name }),
       });
+      if (handleUnauthorized(response)) return;
       if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`);
+        const data = await response.json().catch(() => ({}));
+        alert(data?.error || `Could not remove product (HTTP ${response.status})`);
+        return;
       }
       await fetchInfo();
     } catch (error) {
       console.error("Could not remove product:", error);
+      alert("Could not reach the server. Please try again.");
     }
   };
 
