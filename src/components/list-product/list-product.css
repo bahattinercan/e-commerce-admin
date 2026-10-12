@@ -53,3 +53,23 @@
     height: 60px;
   }
 }
+
+.list-product-count {
+  color: #6b7280;
+  font-size: 14px;
+  margin: 0 0 10px;
+}
+
+.list-product-load-more {
+  margin: 16px 0;
+  padding: 10px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #f3f4f6;
+  color: #111827;
+  cursor: pointer;
+}
+
+.list-product-load-more:hover {
+  background: #e5e7eb;
+}
