@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import crossIcon from "../../assets/cross_icon.png";
 import { API_URL } from "../../config";
-import { getToken, handleUnauthorized } from "../../helpers/auth";
+import { handleUnauthorized } from "../../helpers/auth";
 import "./list-product.css";
 
 const ListProduct = () => {
@@ -29,10 +29,10 @@ const ListProduct = () => {
     try {
       const response = await fetch(`${API_URL}/removeProduct`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "auth-token": getToken() || "",
         },
         body: JSON.stringify({ id: id, name: name }),
       });

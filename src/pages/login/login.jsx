@@ -1,7 +1,6 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 import { API_URL } from "../../config";
-import { setToken } from "../../helpers/auth";
 import "./login.css";
 
 const Login = ({ onLogin }) => {
@@ -21,6 +20,7 @@ const Login = ({ onLogin }) => {
     try {
       const loginResponse = await fetch(`${API_URL}/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -34,9 +34,9 @@ const Login = ({ onLogin }) => {
         return;
       }
 
-      // Token geçerli olsa da admin yetkisi olmayabilir: panel açılmadan önce doğrula.
+      // A valid session is not enough: the account must have admin role.
       const verifyResponse = await fetch(`${API_URL}/adminVerify`, {
-        headers: { "auth-token": loginData.token },
+        credentials: "include",
       });
 
       if (verifyResponse.status === 403) {
@@ -48,7 +48,6 @@ const Login = ({ onLogin }) => {
         return;
       }
 
-      setToken(loginData.token);
       onLogin();
     } catch (err) {
       console.error("Login failed:", err);

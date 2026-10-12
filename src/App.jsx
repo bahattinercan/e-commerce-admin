@@ -1,24 +1,33 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "./components/navbar/navbar";
 import Admin from "./pages/admin/admin";
 import Login from "./pages/login/login";
-import { clearToken, getToken } from "./helpers/auth";
+import { checkSession, logout } from "./helpers/auth";
 
 const App = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(getToken()));
+  // null = session not checked yet, false = logged out, true = admin session
+  const [session, setSession] = useState(null);
 
-  const logout = () => {
-    clearToken();
-    setIsLoggedIn(false);
-  };
+  useEffect(() => {
+    checkSession().then((ok) => setSession(ok));
+  }, []);
 
-  if (!isLoggedIn) {
-    return <Login onLogin={() => setIsLoggedIn(true)} />;
+  if (session === null) {
+    return <div className="app-loading">Oturum kontrol ediliyor…</div>;
   }
+
+  if (!session) {
+    return <Login onLogin={() => setSession(true)} />;
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    setSession(false);
+  };
 
   return (
     <div>
-      <Navbar onLogout={logout}></Navbar>
+      <Navbar onLogout={handleLogout}></Navbar>
       <Admin></Admin>
     </div>
   );

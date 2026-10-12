@@ -1,7 +1,7 @@
 import { useState } from "react";
 import uploadArea from "../../assets/upload_area.svg";
 import { API_URL } from "../../config";
-import { getToken, handleUnauthorized } from "../../helpers/auth";
+import { handleUnauthorized } from "../../helpers/auth";
 import "./add-product.css";
 
 const AddProduct = () => {
@@ -32,9 +32,9 @@ const AddProduct = () => {
 
       const uploadResponse = await fetch(`${API_URL}/upload`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Accept: "application/json",
-          "auth-token": getToken() || "",
         },
         body: formData,
       });
@@ -50,10 +50,10 @@ const AddProduct = () => {
 
       const addResponse = await fetch(`${API_URL}/addProduct`, {
         method: "POST",
+        credentials: "include",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          "auth-token": getToken() || "",
         },
         body: JSON.stringify(product),
       });

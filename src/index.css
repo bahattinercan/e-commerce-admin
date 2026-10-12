@@ -4,3 +4,10 @@ body {
   background-color: #f6f6f6;
   height: 100vh;
 }
+
+.app-loading {
+  padding: 40px;
+  text-align: center;
+  color: #454545;
+  font-size: 15px;
+}
