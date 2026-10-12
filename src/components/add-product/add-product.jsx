@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import uploadArea from "../../assets/upload_area.svg";
 import "./add-product.css";
 
@@ -19,37 +19,51 @@ const AddProduct = () => {
     setProductDetails({ ...productDetails, [e.target.name]: e.target.value });
   };
   const addProduct = async () => {
-    console.log(productDetails);
-    let responseData;
-    let product = productDetails;
-    let formData = new FormData();
-    formData.append("product", image);
+    if (!image) {
+      alert("Please select a product image first");
+      return;
+    }
 
-    await fetch("http://localhost:4000/upload", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-      },
-      body: formData,
-    })
-      .then((resp) => resp.json())
-      .then((data) => (responseData = data));
+    try {
+      const formData = new FormData();
+      formData.append("product", image);
 
-    if (responseData.success) {
-      product.image = responseData.image_url;
-      console.log(product);
-      await fetch("http://localhost:4000/addProduct", {
+      const uploadResponse = await fetch("http://localhost:4000/upload", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+        },
+        body: formData,
+      });
+      const responseData = await uploadResponse.json();
+
+      if (!responseData?.success) {
+        alert("Image upload failed");
+        return;
+      }
+
+      const product = { ...productDetails, image: responseData.image_url };
+
+      const addResponse = await fetch("http://localhost:4000/addProduct", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
         body: JSON.stringify(product),
-      })
-        .then((resp) => resp.json())
-        .then((data) => {
-          data.success ? alert("Product Added") : alert("Failed");
-        });
+      });
+      const data = await addResponse.json();
+
+      if (data?.success) {
+        alert("Product Added");
+        setProductDetails({ name: "", image: "", category: "women", new_price: "", old_price: "" });
+        setImage(false);
+      } else {
+        alert("Failed");
+      }
+    } catch (error) {
+      console.error("Add product failed:", error);
+      alert("Could not reach the server. Please try again.");
     }
   };
 

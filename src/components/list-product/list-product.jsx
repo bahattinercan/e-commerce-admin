@@ -6,11 +6,17 @@ const ListProduct = () => {
   const [allProducts, setAllProducts] = useState([]);
 
   const fetchInfo = async () => {
-    await fetch("http://localhost:4000/allProducts")
-      .then((res) => res.json())
-      .then((data) => {
-        setAllProducts(data);
-      });
+    try {
+      const response = await fetch("http://localhost:4000/allProducts");
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+      const data = await response.json();
+      setAllProducts(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Could not load products:", error);
+      setAllProducts([]);
+    }
   };
 
   useEffect(() => {
@@ -18,12 +24,19 @@ const ListProduct = () => {
   }, []);
 
   const removeProduct = async (id, name) => {
-    await fetch("http://localhost:4000/removeProduct", {
-      method: "POST",
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-      body: JSON.stringify({ id: id, name: name }),
-    });
-    await fetchInfo();
+    try {
+      const response = await fetch("http://localhost:4000/removeProduct", {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id, name: name }),
+      });
+      if (!response.ok) {
+        throw new Error(`Request failed with status ${response.status}`);
+      }
+      await fetchInfo();
+    } catch (error) {
+      console.error("Could not remove product:", error);
+    }
   };
 
   return (
@@ -41,8 +54,8 @@ const ListProduct = () => {
         <hr />
         {allProducts.map((product, index) => {
           return (
-            <>
-              <div key={index} className="list-product-format-main list-product-format">
+            <React.Fragment key={product.id ?? index}>
+              <div className="list-product-format-main list-product-format">
                 <img src={product.image} alt="" className="list-product-productIcon" />
                 <p>{product.name}</p>
                 <p>${product.old_price}</p>
@@ -58,7 +71,7 @@ const ListProduct = () => {
                 />
               </div>
               <hr />
-            </>
+            </React.Fragment>
           );
         })}
       </div>

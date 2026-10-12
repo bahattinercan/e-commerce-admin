@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import addProductIcon from "../../assets/Product_Cart.svg";
 import listProductIcon from "../../assets/Product_list_icon.svg";
